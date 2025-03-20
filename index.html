@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Form with Modal</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+.error {
+    color: red;
+    font-size: 0.8em;
+}
+
+.password-strength {
+    font-size: 0.8em;
+    color: #555;
+}
+
+.age-message {
+    font-size: 0.8em;
+    color: #555;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    text-align: center;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Interactive Form</h2>
+        <form id="interactiveForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <div class="error" id="usernameError"></div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <div class="error" id="emailError"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <div class="error" id="passwordError"></div>
+                <div id="passwordStrength" class="password-strength"></div>
+            </div>
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required>
+                <div class="error" id="ageError"></div>
+                <div id="ageMessage" class="age-message"></div>
+            </div>
+            <div class="form-group">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Form submitted successfully!</p>
+        </div>
+    </div>
+
+    <script>
+ document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('interactiveForm');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const age = document.getElementById('age');
+    const usernameError = document.getElementById('usernameError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const ageError = document.getElementById('ageError');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const ageMessage = document.getElementById('ageMessage');
+    const modal = document.getElementById('myModal');
+    const close = document.getElementsByClassName('close')[0];
+
+    form.addEventListener('submit', (event) => {
+        let isValid = true;
+
+        // Clear previous error messages
+        usernameError.textContent = '';
+        emailError.textContent = '';
+        passwordError.textContent = '';
+        ageError.textContent = '';
+
+        // Validate Username
+        if (!username.value.trim()) {
+            usernameError.textContent = 'Username is required.';
+            isValid = false;
+        } else if (username.value.length < 4) {
+            usernameError.textContent = 'Username must include more than FOUR characters.';
+            isValid = false;
+        }
+
+        // Validate Email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email.value.trim()) {
+            emailError.textContent = 'Email is required.';
+            isValid = false;
+        } else if (!emailRegex.test(email.value)) {
+            emailError.textContent = 'Please enter a valid email address.';
+            isValid = false;
+        }
+
+        // Validate Password
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!password.value) {
+            passwordError.textContent = 'Password is required.';
+            isValid = false;
+        } else if (!passwordRegex.test(password.value)) {
+            passwordError.textContent = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.';
+            isValid = false;
+        }
+
+        // Validate Age
+        if (!age.value) {
+            ageError.textContent = 'Age is required.';
+            isValid = false;
+        } else if (age.value < 18) {
+            ageError.textContent = 'You must be at least 18 years old.';
+            isValid = false;
+        }
+
+        // Prevent form submission if validation fails
+        if (!isValid) {
+            event.preventDefault();
+        } else {
+            // Show modal and prevent form submission
+            event.preventDefault();
+            modal.style.display = 'block';
+        }
+    });
+
+    // Close the modal
+    close.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Interactive elements
+    username.addEventListener('input', () => {
+        if (username.value.trim()) {
+            usernameError.textContent = '';
+        }
+    });
+
+    email.addEventListener('input', () => {
+        if (email.value.trim()) {
+            emailError.textContent = '';
+        }
+    });
+
+    password.addEventListener('input', () => {
+        if (password.value) {
+            passwordError.textContent = '';
+            checkPasswordStrength(password.value);
+        }
+    });
+
+    age.addEventListener('input', () => {
+        if (age.value) {
+            ageError.textContent = '';
+            checkAge(age.value);
+        }
+    });
+
+    // Password strength meter
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (password.match(/[a-z]/)) strength++;
+        if (password.match(/[A-Z]/)) strength++;
+        if (password.match(/\d/)) strength++;
+        if (password.match(/[@$!%*?&]/)) strength++;
+
+        switch (strength) {
+            case 0:
+            case 1:
+                passwordStrength.textContent = 'Very Weak';
+                passwordStrength.style.color = 'red';
+                break;
+            case 2:
+            case 3:
+                passwordStrength.textContent = 'Weak';
+                passwordStrength.style.color = 'orange';
+                break;
+            case 4:
+                passwordStrength.textContent = 'Medium';
+                passwordStrength.style.color = 'yellow';
+                break;
+            case 5:
+                passwordStrength.textContent = 'Strong';
+                passwordStrength.style.color = 'green';
+                break;
+        }
+    }
+
+    // Age message
+    function checkAge(age) {
+        if (age >= 18 && age < 25) {
+            ageMessage.textContent = 'You are a young adult!';
+        } else if (age >= 25 && age < 40) {
+            ageMessage.textContent = 'You are a young professional!';
+        } else if (age >= 40) {
+            ageMessage.textContent = 'You are a seasoned professional!';
+        } else {
+            ageMessage.textContent = '';
+        }
+    }
+});
+    </script>
+</body>
+</html>
